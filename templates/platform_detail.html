@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8">
+      <title>Game Shelf</title>
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.0/jquery.min.js"> </script>
+      <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"> </script>
+      <link rel=stylesheet type=text/css href="{{ url_for('static', filename='styles.css') }}">
+      <script type="text/javascript" src="https://apis.google.com/js/client:platform.js?onload=start"></script>
+   </head>
+   <body class="fullbleed layout vertical">
+      <nav class="navbar navbar-default navbar-fixed-top">
+         <div class="container">
+            <div class="navbar-header">
+               <a href="/" class="navbar-brand">Go Back To Game Shelf</a>
+            </div>
+            <div class="navbar-collapse collapse">
+              <ul class="nav navbar-nav navbar-right">
+                {% if user==None %}
+                <li><div id="signinButton">
+                  <span class="g-signin"
+                    data-scope="openid"
+                    data-clientid="671978925181-d15vpasjm8kdi2r56vclndcj08qdkag2.apps.googleusercontent.com"
+                    data-redirecturi="catalog"
+                    data-accesstype="offline"
+                    data-cookiepolicy="single_host_origin"
+                    data-callback="signInCallback"
+                    data-approvalprompt="force">
+                  </span>
+                </div></li>
+                {% else %}
+                  <li><a href="">Logged in as: {{ user }}</a></li>
+                  <li><a href="{{ url_for('gdisconnect') }}">Sign out</a></li>
+                {% endif %}
+              </ul>
+            </div>
+         </div>
+      </nav>
+      <!-- Displaying flash messages -->
+      <div class="container">
+         <div class="row">
+            <div class="col-md-4">
+               <h4>Platforms</h4>
+               <div class="list-group">
+                  {% for platform in platforms %}
+                  <a class="list-group-item {{"active" if selected_platform.name==platform.name}}" href="{{ url_for('get_games', platform_name=platform.name) }}" >{{ platform.name }} </a>
+                  {% endfor %}
+               </div>
+            </div>
+            <div class="col-md-8">
+               <h4>Games for {{selected_platform.name}} <span class="pull-right"><a href="{{ url_for('new_game') }}"> Add Game </a></span></h4>
+                <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+                  {% for game in games %}
+                    <div class="panel panel-default">
+                      <div class="panel-heading" role="tab" id="heading{{game.id}}">
+                        <h4 class="panel-title">
+                          <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse{{game.id}}" aria-expanded="true" aria-controls="collapse{{game.id}}">
+                            {{game.title}}
+                          </a>
+                        </h4>
+                      </div>
+                      <div id="collapse{{game.id}}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading{{game.id}}">
+                          <div class="panel-body">
+                            <label for="">Cover: </label><br>
+                            <img src="{{game.cover}}" height="330" width="250"><br>
+                            <label for="">About this game: </label><br>
+                            {{game.description}}
+                            <br><br>
+                            <label for="">Platform: </label>
+                            {{selected_platform.name}}<br>
+                            <label for="">Release Date: </label>
+                            {{game.release}}
+                            <form action="{{ url_for('delete_game', game_title=game.title)}}" method='get'>
+                              <a class="btn btn-primary" href="{{ url_for('edit_game', game_title=game.title) }}"> Edit </a>
+                              <input class="btn btn-danger" type="submit" value='Delete'>
+                            </form>
+                          </div>
+                      </div>
+                    </div>
+                  {% endfor %}
+                </div>
+               </div>
+            </div>
+            <div class = 'flash'>
+               {% with messages = get_flashed_messages() %}
+               {% if messages %}
+               <div class="alert alert-warning" role="alert">
+                  {% for message in messages %}
+                  <li> <strong> {{ message }} </strong> </li>
+                  {% endfor %}
+               </div>
+               {% endif %}
+               {% endwith %}
+            </div>
+         </div>
+      </div>
+   </body>
+</html>
